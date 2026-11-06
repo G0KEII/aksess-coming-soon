@@ -2,10 +2,17 @@
 // Files starting with "_" inside /api are not exposed as routes by Vercel.
 // Styles are inline and fonts fall back to Georgia / Arial, because most
 // email clients ignore web fonts and <style> blocks.
+// Both builders take { unsubscribeUrl }. Never send without one.
+
+const SUPPORT = 'support@getaksess.com';
+
+// Escapes a value for use inside an HTML attribute or text.
+const esc = (v) =>
+  String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 export const subject = 'AKSESS Granted';
 
-export function text() {
+export function text({ unsubscribeUrl } = {}) {
   return [
     "You're on the list.",
     '',
@@ -25,11 +32,15 @@ export function text() {
     'Be where it happens.',
     'AKSESS, Lagos',
     '',
-    "You got this email because this address was entered at getaksess.com. Not you? Ignore it and you won't hear from us.",
+    '---',
+    `Questions? Write to ${SUPPORT}`,
+    "You're getting this because you joined the AKSESS waitlist at getaksess.com.",
+    `Unsubscribe: ${unsubscribeUrl}`,
+    '© 2026 AKSESS · Lagos, Nigeria',
   ].join('\n');
 }
 
-export function html() {
+export function html({ unsubscribeUrl } = {}) {
   const teal = '#006B68';
   const deep = '#00403E';
   const coral = '#FF735E';
@@ -124,9 +135,19 @@ export function html() {
           <td style="padding:24px 4px 0;border-bottom:3px solid ${coral};"></td>
         </tr>
         <tr>
-          <td style="padding:16px 4px 0;font-family:${sans};font-size:12px;line-height:18px;color:${muted};">
-            You got this email because this address was entered at getaksess.com. Not you? Ignore it and you won't hear from us.<br>
-            AKSESS, Lagos, Nigeria
+          <td style="padding:0 4px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="padding:16px 0 0;font-family:${sans};font-size:12px;line-height:18px;color:${muted};">
+                  Questions? Write to <a href="mailto:${SUPPORT}" style="color:${teal};text-decoration:underline;">${SUPPORT}</a><br>
+                  You're getting this because you joined the AKSESS waitlist at getaksess.com.<br>
+                  <a href="${esc(unsubscribeUrl)}" style="color:${teal};text-decoration:underline;">Unsubscribe</a>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:12px 0 0;font-family:${mono};font-size:11px;letter-spacing:1px;color:${muted};">© 2026 AKSESS · Lagos, Nigeria</td>
+              </tr>
+            </table>
           </td>
         </tr>
 

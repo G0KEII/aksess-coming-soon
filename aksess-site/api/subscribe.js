@@ -6,14 +6,18 @@
 //   RESEND_FROM        (optional, defaults to "AKSESS <hello@getaksess.com>";
 //                       must be on a domain verified in Resend)
 //   RESEND_REPLY_TO    (optional, inbox that receives replies to the welcome email)
+//   UNSUBSCRIBE_SECRET (required for the welcome email, signs the unsubscribe link)
+//   SITE_URL           (optional, base of the unsubscribe link, defaults to
+//                       "https://getaksess.com")
 
 import { subject, html, text } from './_welcome-email.js';
+import { unsubscribeUrl, unsubscribeHeaders } from './_unsubscribe-token.js';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function resend(path, body) {
+function resend(path, body, method = 'POST') {
   return fetch(`https://api.resend.com${path}`, {
-    method: 'POST',
+    method,
     headers: {
       Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
       'Content-Type': 'application/json',
@@ -46,7 +50,16 @@ export default async function handler(req, res) {
   const created = await resend('/contacts', contact);
 
   // 409: already on the list. Say yes, but don't send the welcome email again.
+  // If they unsubscribed earlier, signing up again puts them back on.
   if (created.status === 409) {
+    const resubscribed = await resend(
+      `/contacts/${encodeURIComponent(email)}`,
+      { unsubscribed: false },
+      'PATCH',
+    );
+    if (!resubscribed.ok) {
+      console.error('Resend resubscribe error', resubscribed.status, await resubscribed.text());
+    }
     return res.status(200).json({ ok: true });
   }
   if (!created.ok) {
@@ -55,12 +68,20 @@ export default async function handler(req, res) {
   }
 
   // The signup already succeeded, so a failed welcome email is only logged.
+  // Never send without a working unsubscribe link.
+  if (!process.env.UNSUBSCRIBE_SECRET) {
+    console.error('Welcome email error: UNSUBSCRIBE_SECRET is not set');
+    return res.status(200).json({ ok: true });
+  }
+
+  const unsubscribe = unsubscribeUrl(email);
   const welcome = {
     from: process.env.RESEND_FROM || 'AKSESS <hello@getaksess.com>',
     to: [email],
     subject,
-    html: html(),
-    text: text(),
+    html: html({ unsubscribeUrl: unsubscribe }),
+    text: text({ unsubscribeUrl: unsubscribe }),
+    headers: unsubscribeHeaders(email),
   };
   if (process.env.RESEND_REPLY_TO) welcome.reply_to = process.env.RESEND_REPLY_TO;
 
