@@ -1,0 +1,6 @@
+{
+  "name": "aksess-coming-soon",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=18" }
+}
