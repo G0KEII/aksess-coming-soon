@@ -174,7 +174,8 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--teal);outline-offse
           <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
           <button type="submit">Notify me</button>
         </div>
-        <p class="note" id="note" aria-live="polite">One email when we open. Nothing else.</p>
+        <input class="sr" id="company" name="company" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <p class="note" id="note" aria-live="polite">A quick confirmation now, then one email when we open.</p>
       </form>
     </section>
 
@@ -242,10 +243,10 @@ document.getElementById('signup').addEventListener('submit', async function (e) 
     var res = await fetch('/api/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: input.value })
+      body: JSON.stringify({ email: input.value, company: document.getElementById('company').value })
     });
     if (!res.ok) throw new Error();
-    note.textContent = "You're on the list. We'll email " + input.value + ' when AKSESS opens.';
+    note.textContent = "You're on the list. Check " + input.value + ' for a confirmation.';
     input.value = '';
   } catch (err) {
     note.textContent = 'That did not go through. Check your connection and try again.';
