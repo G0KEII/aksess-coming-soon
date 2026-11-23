@@ -1,0 +1,8 @@
+# Copy to .dev.vars for `wrangler dev`. .dev.vars is gitignored.
+# Use fake values locally unless you really mean to call Resend.
+RESEND_API_KEY=
+RESEND_SEGMENT_ID=
+RESEND_FROM=
+RESEND_REPLY_TO=
+UNSUBSCRIBE_SECRET=
+SITE_URL=
