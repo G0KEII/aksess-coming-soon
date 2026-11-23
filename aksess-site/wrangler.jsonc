@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "aksess-coming-soon",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-11-23",
+  "assets": {
+    // Only index.html and email/hero.jpg live here. Source code stays outside.
+    "directory": "./public",
+    // Every /api/* request goes to the Worker, never to a static file.
+    "run_worker_first": ["/api/*"]
+  },
+  "observability": {
+    "enabled": true
+  }
+  // Secrets and config (set in the dashboard or `wrangler secret put`, never here):
+  //   RESEND_API_KEY, UNSUBSCRIBE_SECRET          (secrets, required)
+  //   RESEND_SEGMENT_ID, RESEND_FROM, RESEND_REPLY_TO, SITE_URL (optional)
+}

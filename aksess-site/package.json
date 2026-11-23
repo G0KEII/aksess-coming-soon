@@ -2,5 +2,16 @@
   "name": "aksess-coming-soon",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=18" }
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node --test test/",
+    "test:e2e": "node test/e2e.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "wrangler": "4.156.0"
+  }
 }
